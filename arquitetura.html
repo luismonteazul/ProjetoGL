@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquitetura Interativa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Earthy Neutral -->
+    <!-- Application Structure Plan: A aplicação transforma o e-book linear em uma experiência temática e interativa. Em vez de capítulos sequenciais, a estrutura é dividida em três seções principais acessíveis a qualquer momento: "Fundamentos", "Linha do Tempo" e "O Processo". Esta abordagem de dashboard permite que o usuário explore os conceitos de forma não linear, focando nos tópicos de maior interesse. A interatividade (clicar em cartões, pontos do gráfico e etapas do processo) foi projetada para aumentar o engajamento e facilitar a absorção de informações complexas, transformando a leitura passiva em uma descoberta ativa. -->
+    <!-- Visualization & Content Choices: 1. Fundamentos: O conteúdo textual foi transformado em cartões interativos. Objetivo: Organizar/Informar. Interação: Clique para revelar detalhes. Justificativa: Mais envolvente que uma lista estática. 2. História: A lista de períodos históricos foi convertida em uma linha do tempo visual usando um gráfico de dispersão (Scatter Chart) do Chart.js. Objetivo: Mostrar Mudança/Comparar. Interação: Clicar em um ponto do gráfico exibe as informações daquele período. Justificativa: Visualiza a progressão cronológica de forma clara e interativa. 3. Processo Criativo: As etapas foram organizadas em um fluxograma visual com HTML/Tailwind. Objetivo: Organizar/Informar. Interação: Clicar em uma etapa mostra sua descrição. Justificativa: Torna o processo sequencial fácil de entender. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF8;
+            color: #3D3D3D;
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #A0522D;
+            border-bottom-color: #A0522D;
+        }
+        .card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .content-fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 1024px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-10 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-[#A0522D]">Arquitetura Interativa</h1>
+            <div class="hidden md:flex space-x-8">
+                <a href="#fundamentos" class="nav-link pb-1">Fundamentos</a>
+                <a href="#historia" class="nav-link pb-1">Linha do Tempo</a>
+                <a href="#processo" class="nav-link pb-1">O Processo</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+
+        <section id="intro" class="text-center mb-20">
+            <h2 class="text-4xl font-bold mb-4">Arquitetura Descomplicada</h2>
+            <p class="max-w-3xl mx-auto text-lg text-gray-600">
+                Bem-vindo a uma exploração interativa do mundo da arquitetura. Mais do que apenas projetar edifícios, a arquitetura une arte e ciência para moldar os espaços em que vivemos. Navegue pelas seções abaixo para descobrir seus princípios, viajar por sua história e entender o processo criativo de um arquiteto.
+            </p>
+        </section>
+
+        <section id="fundamentos" class="mb-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold">Fundamentos Essenciais</h3>
+                <p class="max-w-2xl mx-auto mt-2 text-gray-600">
+                    Toda grande obra arquitetônica se baseia em princípios e elementos atemporais. Clique nos cartões abaixo para explorar cada conceito fundamental, desde a tríade de Vitrúvio até os elementos que compõem qualquer espaço construído.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="col-span-1 md:col-span-2 lg:col-span-3 bg-white p-8 rounded-xl shadow-inner min-h-[200px] flex items-center justify-center">
+                    <div id="fundamentos-content" class="text-center">
+                        <p class="text-gray-500">Selecione um conceito para ver sua descrição aqui.</p>
+                    </div>
+                </div>
+                <div id="fundamentos-cards" class="col-span-1 md:col-span-2 lg:col-span-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                </div>
+            </div>
+        </section>
+
+        <section id="historia" class="mb-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold">Jornada Histórica Interativa</h3>
+                <p class="max-w-2xl mx-auto mt-2 text-gray-600">
+                    A história da arquitetura reflete a evolução da humanidade. Clique nos pontos da linha do tempo abaixo para viajar através dos diferentes períodos e descobrir as características que definiram cada estilo arquitetônico.
+                </p>
+            </div>
+            <div class="bg-white p-4 sm:p-8 rounded-xl shadow-lg">
+                <div class="chart-container">
+                    <canvas id="history-chart"></canvas>
+                </div>
+                <div id="historia-content" class="mt-8 p-6 bg-[#FDFBF8] rounded-lg min-h-[150px]">
+                    <p class="text-gray-500 text-center">Selecione um período na linha do tempo para ver os detalhes.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="processo">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold">O Processo Criativo do Arquiteto</h3>
+                <p class="max-w-2xl mx-auto mt-2 text-gray-600">
+                    Da inspiração à construção, o design arquitetônico é uma jornada metódica. Explore as etapas do processo criativo clicando em cada fase abaixo para entender como as ideias se transformam em espaços reais.
+                </p>
+            </div>
+            <div class="flex flex-col md:flex-row justify-center items-center md:items-start gap-4 md:gap-0">
+            </div>
+            <div id="processo-content-wrapper" class="mt-8 max-w-4xl mx-auto">
+                <div id="processo-content" class="p-8 bg-white rounded-xl shadow-lg min-h-[150px]">
+                    <p class="text-gray-500 text-center">Selecione uma etapa do processo para ler a descrição.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white mt-20 border-t">
+        <div class="container mx-auto px-6 py-8 text-center text-gray-600">
+            <h4 class="text-xl font-semibold mb-2">Um Novo Olhar Sobre a Cidade</h4>
+            <p class="max-w-3xl mx-auto">
+                A arquitetura está em toda parte. Cada edifício conta uma história. Esperamos que esta exploração interativa inspire você a observar as linhas, formas e materiais ao seu redor, enriquecendo sua experiência do mundo construído.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const contentData = {
+                fundamentos: [
+                    { title: 'Firmitas (Solidez)', content: 'A construção deve ser firme e durável. Isso envolve a escolha correta dos materiais e um design estrutural que resista ao tempo, ao clima e ao uso.' },
+                    { title: 'Utilitas (Utilidade)', content: 'O edifício deve ser funcional e útil para o propósito a que se destina. Um teatro, por exemplo, deve ter boa acústica e visibilidade, enquanto uma casa deve oferecer conforto e segurança.' },
+                    { title: 'Venustas (Beleza)', content: 'A obra deve ser esteticamente agradável. A beleza na arquitetura não é superficial; ela nasce da harmonia das proporções, das formas e da luz.' },
+                    { title: 'Espaço', content: 'O elemento mais fundamental. Arquitetos trabalham com a organização do espaço para criar sensações de abertura, intimidade, movimento e repouso.' },
+                    { title: 'Luz', content: 'A luz, tanto natural quanto artificial, é uma ferramenta poderosa. Ela pode destacar texturas, definir volumes e influenciar a atmosfera de um ambiente.' },
+                    { title: 'Materiais', content: 'Cada material (madeira, concreto, vidro, aço) tem suas próprias características, texturas e cores, que influenciam tanto a estrutura quanto a estética da obra.' },
+                    { title: 'Forma', content: 'O contorno e a geometria de um edifício. A forma pode ser orgânica e fluida, ou rígida e angular, e sempre busca dialogar com os elementos ao redor.' },
+                ],
+                historia: [
+                    { period: 'Clássica', year: -250, details: 'Focada em simetria, proporção e ordem. As colunas (dóricas, jônicas e coríntias) são o elemento mais reconhecível. A Grécia nos deu os templos, como o Partenon, enquanto Roma aperfeiçoou o uso de arcos, abóbadas e concreto para construir monumentos como o Coliseu e o Panteão.' },
+                    { period: 'Medieval', year: 1000, details: 'Caracterizada pelo surgimento de estilos como o Românico (robusto, com paredes espessas) e o Gótico (vertical, com arcos pontiagudos e vitrais coloridos). As grandes catedrais góticas, como Notre-Dame, são os exemplos mais emblemáticos.' },
+                    { period: 'Renascimento e Barroco', year: 1600, details: 'O Renascimento marcou um retorno aos ideais clássicos de harmonia. O Barroco, por sua vez, foi uma reação, privilegiando o drama, a emoção e a ornamentação exuberante, com fachadas curvadas e ricos detalhes.' },
+                    { period: 'Moderna', year: 1920, details: 'Um movimento de ruptura com os estilos históricos, valorizando a funcionalidade e a simplicidade. O lema "a forma segue a função" e o uso de vidro e aço são exemplos dessa era, como visto no estilo Bauhaus.' },
+                    { period: 'Contemporânea', year: 1980, details: 'Sem um único estilo dominante, explora novas formas, materiais e tecnologias. A sustentabilidade, a biomimética (imitar a natureza) e o design paramétrico são temas centrais, permitindo a criação de edifícios únicos e complexos.' }
+                ],
+                processo: [
+                    { title: 'Análise do Sítio', content: 'O primeiro passo é entender o terreno. Qual é a geografia, o clima, a vegetação, a vista? A orientação solar e o vento influenciam o conforto térmico e a iluminação.' },
+                    { title: 'Programa e Cliente', content: 'O arquiteto precisa entender as necessidades e os desejos do cliente. Quantas pessoas viverão ali? Qual é o orçamento? O "programa" é a lista de requisitos que o projeto deve cumprir.' },
+                    { title: 'Desenho e Representação', content: 'A ideia inicial, geralmente um rascunho, evolui para plantas (vista de cima), cortes (vista de perfil), elevações (vista da fachada) e, cada vez mais, modelos 3D digitais.' },
+                    { title: 'Sustentabilidade', content: 'A preocupação com o meio ambiente e a eficiência energética é central. O arquiteto busca soluções para reduzir o impacto da construção, desde materiais recicláveis até o design que maximize a luz e a ventilação naturais.' }
+                ]
+            };
+
+            function updateContent(elementId, title, text) {
+                const contentEl = document.getElementById(elementId);
+                contentEl.innerHTML = `<div class="content-fade-in"><h4 class="text-xl font-bold mb-2 text-[#A0522D]">${title}</h4><p class="text-gray-700">${text}</p></div>`;
+            }
+            
+            const fundamentosContent = document.getElementById('fundamentos-content');
+            const fundamentosCardsContainer = document.getElementById('fundamentos-cards');
+            contentData.fundamentos.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'card bg-white p-6 rounded-xl shadow-md cursor-pointer text-center';
+                card.innerHTML = `<h5 class="font-semibold">${item.title}</h5>`;
+                card.addEventListener('click', () => {
+                    fundamentosContent.innerHTML = `<div class="content-fade-in"><h4 class="text-xl font-bold mb-2 text-[#A0522D]">${item.title}</h4><p class="text-gray-700 max-w-xl mx-auto">${item.content}</p></div>`;
+                });
+                fundamentosCardsContainer.appendChild(card);
+            });
+
+            const historiaContent = document.getElementById('historia-content');
+            const historyChartCtx = document.getElementById('history-chart').getContext('2d');
+            const historyChart = new Chart(historyChartCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Períodos Arquitetônicos',
+                        data: contentData.historia.map(item => ({ x: item.year, y: 1 })),
+                        backgroundColor: '#A0522D',
+                        pointRadius: 10,
+                        pointHoverRadius: 15,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onClick: (e, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const item = contentData.historia[index];
+                            historiaContent.innerHTML = `<div class="content-fade-in"><h4 class="text-xl font-bold mb-2 text-[#A0522D]">${item.period}</h4><p class="text-gray-700">${item.details}</p></div>`;
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    const item = contentData.historia.find(h => h.year === value);
+                                    return item ? item.period : '';
+                                },
+                                font: {
+                                    size: 12,
+                                    weight: '600'
+                                },
+                                maxRotation: 0,
+                                minRotation: 0,
+                                autoSkip: false
+                            },
+                            grid: {
+                                display: false,
+                                drawBorder: false,
+                            },
+                        },
+                        y: {
+                            display: false,
+                            min: 0,
+                            max: 2
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function(context) {
+                                    const index = context.dataIndex;
+                                    return contentData.historia[index].period;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const processoContent = document.getElementById('processo-content');
+            const processoContainer = document.querySelector('#processo .flex');
+            contentData.processo.forEach((item, index) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'flex flex-col md:flex-row items-center';
+
+                const card = document.createElement('div');
+                card.className = 'card bg-white p-4 rounded-full shadow-lg cursor-pointer flex-shrink-0 w-32 h-32 flex items-center justify-center text-center';
+                card.innerHTML = `<h5 class="font-semibold text-sm">${item.title}</h5>`;
+                card.addEventListener('click', () => {
+                    processoContent.innerHTML = `<div class="content-fade-in"><h4 class="text-xl font-bold mb-2 text-[#A0522D]">${item.title}</h4><p class="text-gray-700">${item.content}</p></div>`;
+                });
+                stepDiv.appendChild(card);
+
+                if (index < contentData.processo.length - 1) {
+                    const arrow = document.createElement('div');
+                    arrow.className = 'h-8 w-px md:h-px md:w-16 bg-gray-300 my-2 md:my-0';
+                    stepDiv.appendChild(arrow);
+                }
+                processoContainer.appendChild(stepDiv);
+            });
+            
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('main section');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                        });
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            sections.forEach(section => observer.observe(section));
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.querySelector(link.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
